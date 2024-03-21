@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.FlowerReferenceAppForOTTAndroid" parent="@style/Theme.Leanback"/>
+</resources>

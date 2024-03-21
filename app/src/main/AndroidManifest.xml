@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="com.google.android.assistant.READ_HOTWORD_STATE" />
+    <uses-permission android:name="com.google.android.assistant.WRITE_HOTWORD_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-feature
+            android:name="android.hardware.touchscreen"
+            android:required="false"/>
+    <uses-feature
+            android:name="android.software.leanback"
+            android:required="true"/>
+
+    <application
+            android:usesCleartextTraffic="true"
+            android:allowBackup="true"
+            android:icon="@drawable/ic_launcher"
+            android:banner="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.FlowerReferenceAppForOTTAndroid"
+            android:name="tv.anypoint.flower.reference.android.FlowerOTTApplication"
+            tools:ignore="UnusedAttribute">
+        <activity android:name="tv.anypoint.flower.reference.android.SplashActivity"
+                  android:supportsPictureInPicture="true"
+                  android:exported="true"
+                  android:label="@string/app_name"
+                  android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+                android:name="tv.anypoint.flower.reference.android.MainActivity"
+                android:supportsPictureInPicture="true"
+                android:exported="false"
+                android:screenOrientation="landscape">
+        </activity>
+        <activity
+                android:name="tv.anypoint.flower.reference.android.DetailsActivity"
+                android:supportsPictureInPicture="true"
+                android:exported="false"
+                android:screenOrientation="landscape"/>
+        <activity
+                android:name="tv.anypoint.flower.reference.android.PlaybackActivity"
+                android:supportsPictureInPicture="true"
+                android:exported="false"
+                android:screenOrientation="landscape"/>
+    </application>
+
+</manifest>
