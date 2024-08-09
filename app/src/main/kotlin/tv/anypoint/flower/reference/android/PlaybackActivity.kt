@@ -1,6 +1,7 @@
 package tv.anypoint.flower.reference.android
 
 import android.app.Activity
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.SurfaceView
 import android.view.View
@@ -15,9 +16,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.lighthousegames.logging.logging
 import tv.anypoint.flower.android.sdk.api.FlowerAdView
-import tv.anypoint.flower.sdk.core.api.FlowerAdsManagerListener
-import tv.anypoint.flower.sdk.core.api.FlowerError
-import tv.anypoint.flower.sdk.core.api.MediaPlayerHook
+import tv.anypoint.flower.sdk.core.ads.FlowerAdsManagerImpl
+import tv.anypoint.flower.sdk.core.api.*
 import java.io.IOException
 
 /** Loads [PlaybackVideoFragment]. */
@@ -64,10 +64,39 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
     private fun playVod() {
         flowerAdView.adsManager.addListener(this)
 
-        // TODO GUIDE: implement MediaPlayerHook
+        // TODO GUIDE: implement MediaPlayerHook. if you use ExoPlayer, please use this method.
         val mediaPlayerHook = object : MediaPlayerHook {
             override fun getPlayer(): Any? {
                 return player
+            }
+        }
+
+        // TODO GUIDE: implement MediaPlayerHook. if you use own MediaPlayer, please use this method.
+        val ownMediaPlayerHook = object : MediaPlayerHook {
+            override fun getPlayer(): Any? {
+                return object : MediaPlayerAdapter {
+
+                    override fun getCurrentPosition(): Int {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun getCurrentMediaChunk(): MediaChunk {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun getVolume(): Float {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun isPlaying(): Boolean {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun getHeight(): Int {
+                        TODO("Not yet implemented")
+                    }
+
+                }
             }
         }
 
@@ -78,12 +107,14 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
         // arg2: durationMs, duration of vod content in milliseconds
         // arg3: extraParams, values you can provide for targeting
         // arg4: mediaPlayerHook, interface that provides currently playing segment information for ad tracking
+        // arg5: adTagHeaders, (Optional) values included in headers for ad request
         flowerAdView.adsManager.requestVodAd(
             "https://ad_request",
             "100",
             video.duration,
             mapOf(),
-            mediaPlayerHook
+            mediaPlayerHook,
+            mapOf(),
         )
 
         player.setMediaItem(MediaItem.fromUri(video.videoUrl))
@@ -108,12 +139,16 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
         // arg2: channelId, unique channel id in your service
         // arg3: extraParams, values you can provide for targeting
         // arg4: mediaPlayerHook, interface that provides currently playing segment information for ad tracking
+        // arg5: adTagHeaders, (Optional) values included in headers for ad request
+        // arg6: channelStreamHeaders, (Optional) values included in headers for channel stream request
         val changedChannelUrl = flowerAdView.adsManager.changeChannelUrl(
             video.videoUrl,
             "https://ad_request",
             "1",
             mapOf(),
-            mediaPlayerHook
+            mediaPlayerHook,
+            mapOf(),
+            mapOf(),
         )
 
         logger.info { "from: ${video.videoUrl}, to: $changedChannelUrl" }
@@ -156,6 +191,11 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
         }
     }
 
+    // OPTIONAL GUIDE: change extraParams during stream playback
+    override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
+        flowerAdView.adsManager.changeChannelExtraParams(mapOf("myTargetingKey" to eventTime.realtimeMs.toString()))
+    }
+
     override fun onPositionDiscontinuity(eventTime: AnalyticsListener.EventTime, oldPosition: Player.PositionInfo, newPosition: Player.PositionInfo, reason: Int) {
         logger.debug { "onPositionDiscontinuity - eventTime: $eventTime, oldPosition: $oldPosition, newPosition: $newPosition, reason: $reason" }
     }
@@ -194,7 +234,7 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
                 "onAudioSinkError - ${eventTime.currentMediaPeriodId}, ${eventTime.mediaPeriodId}, " +
                         "${eventTime.currentPlaybackPositionMs}, ${eventTime.eventPlaybackPositionMs}"
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             logger.error(audioSinkError) { "onAudioSinkError - $eventTime" }
         }
     }
@@ -236,7 +276,7 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
         try {
             player.stop()
             player.release()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
         }
     }
 
@@ -324,6 +364,10 @@ class PlaybackActivity : Activity(), Player.Listener, FlowerAdsManagerListener, 
                 }
             }
         }
+    }
+
+    override fun onAdSkipped(reason: Int) {
+        logger.info { "onAdSkipped: $reason" }
     }
 
     companion object {

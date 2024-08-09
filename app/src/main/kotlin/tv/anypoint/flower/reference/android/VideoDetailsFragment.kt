@@ -92,13 +92,19 @@ class VideoDetailsFragment : DetailsSupportFragment() {
 
         val actionAdapter = ArrayObjectAdapter()
 
-        actionAdapter.add(
-            Action(
-                ACTION_WATCH_TRAILER,
-                resources.getString(R.string.watch_trailer_1),
-                resources.getString(R.string.watch_trailer_2)
+        if (mSelectedVideo?.title == "Interstitial Ad") {
+            actionAdapter.add(
+                Action(ACTION_WATCH_INTERSTITIAL, "Interstitial Ad")
             )
-        )
+        } else {
+            actionAdapter.add(
+                Action(
+                    ACTION_WATCH_TRAILER,
+                    resources.getString(R.string.watch_trailer_1),
+                    resources.getString(R.string.watch_trailer_2)
+                )
+            )
+        }
         row.actionsAdapter = actionAdapter
 
         mAdapter.add(row)
@@ -122,6 +128,9 @@ class VideoDetailsFragment : DetailsSupportFragment() {
             if (action.id == ACTION_WATCH_TRAILER) {
                 val intent = Intent(requireActivity(), PlaybackActivity::class.java)
                 intent.putExtra(DetailsActivity.VIDEO, mSelectedVideo)
+                startActivity(intent)
+            } else if (action.id == ACTION_WATCH_INTERSTITIAL) {
+                val intent = Intent(requireActivity(), InterstitialAdActivity::class.java)
                 startActivity(intent)
             } else {
                 Toast.makeText(requireActivity(), action.toString(), Toast.LENGTH_SHORT).show()
@@ -163,6 +172,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         private const val ACTION_WATCH_TRAILER = 1L
         private const val ACTION_RENT = 2L
         private const val ACTION_BUY = 3L
+        private const val ACTION_WATCH_INTERSTITIAL = 4L
 
         private const val DETAIL_THUMB_WIDTH = 274
         private const val DETAIL_THUMB_HEIGHT = 274

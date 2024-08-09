@@ -55,7 +55,7 @@ dependencies {
     implementation("com.google.android.exoplayer:exoplayer-dash:$exoplayerVer")
     implementation("com.google.android.exoplayer:exoplayer-hls:$exoplayerVer")
 
-    implementation("flower-sdk:sdk-android-ott:1.0.15")
+    implementation("flower-sdk:sdk-android-ott:1.0.21")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.0")

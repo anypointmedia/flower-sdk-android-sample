@@ -3,7 +3,8 @@ package tv.anypoint.flower.reference.android
 object VideoList {
     val categoryNames = arrayOf(
         "Linear TV",
-        "VOD"
+        "VOD",
+        "Interstitial AD"
     )
     val linearTvList = listOf(
         Video(
@@ -27,9 +28,18 @@ object VideoList {
             duration = 0
         )
     )
+    val interstitialAdList = listOf(
+        Video(
+            title = "Interstitial Ad",
+            cardImageUrl = "https://apm-assets.s3.ap-northeast-2.amazonaws.com/demo/anypoint_logo.png",
+            cardDetailIconUrl = "https://apm-assets.s3.ap-northeast-2.amazonaws.com/demo/anypoint_logo.png",
+            videoUrl = "",
+        )
+    )
     val categoryItems = listOf(
         linearTvList,
-        vodList
+        vodList,
+        interstitialAdList
     )
 
 }

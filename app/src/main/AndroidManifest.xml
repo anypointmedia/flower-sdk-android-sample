@@ -53,6 +53,11 @@
                 android:supportsPictureInPicture="true"
                 android:exported="false"
                 android:screenOrientation="landscape"/>
+        <activity
+                android:name="tv.anypoint.flower.reference.android.InterstitialAdActivity"
+                android:supportsPictureInPicture="true"
+                android:exported="false"
+                android:screenOrientation="landscape"/>
     </application>
 
 </manifest>
