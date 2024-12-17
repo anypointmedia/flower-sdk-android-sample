@@ -1,3 +1,4 @@
-rootProject.name = "flower-sdk-android-sample"
-include(":android-vod")
-include(":android-interstitial-ad")
+rootProject.name = "flower-sdk-android-example"
+include(":linear-tv-exoplayer")
+include(":vod-exoplayer")
+include(":interstitial-ad")
