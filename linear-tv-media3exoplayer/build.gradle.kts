@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "tv.anypoint.flower.sdk.reference.android.vod"
+    namespace = "tv.anypoint.flower.sdk.reference.android.linear_tv.media3exoplayer"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "tv.anypoint.flower.sdk.reference.android.vod"
+        applicationId = "tv.anypoint.flower.sdk.reference.android.linear_tv.media3exoplayer"
         minSdk = 17
         versionCode = 1
         versionName = "1.0"
@@ -46,10 +46,10 @@ android {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
-    implementation("com.google.android.exoplayer:exoplayer-core:2.17.1")
-    implementation("com.google.android.exoplayer:exoplayer-ui:2.17.1")
-    implementation("com.google.android.exoplayer:exoplayer-hls:2.17.1")
-    implementation("com.google.android.exoplayer:exoplayer-dash:2.17.1")
+    implementation("androidx.media3:media3-exoplayer:1.0.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.0.0")
+    implementation("androidx.media3:media3-exoplayer-hls:1.0.0")
+    implementation("androidx.media3:media3-ui:1.0.0")
 
     implementation("flower-sdk:sdk-android-ott:1.2.1")
 }

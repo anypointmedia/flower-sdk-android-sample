@@ -102,46 +102,10 @@ class PlaybackActivity : Activity(), Player.Listener {
 
         player.addListener(this)
 
-        // TODO GUIDE: Implement MediaPlayerHook to return the player instance if the player is supported by Flower SDK
+        // TODO GUIDE: Implement MediaPlayerHook to return the player instance
         val mediaPlayerHook = object : MediaPlayerHook {
             override fun getPlayer(): Any? {
                 return player
-            }
-        }
-
-        // TODO GUIDE: Implement MediaPlayerHook to return a MediaPlayerAdapter instance if the player is not supported by Flower SDK
-        val ownMediaPlayerHook = object : MediaPlayerHook {
-            override fun getPlayer(): Any? {
-                return object : MediaPlayerAdapter {
-
-                    override fun getCurrentPosition(): Int {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun getCurrentMediaChunk(): MediaChunk {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun getVolume(): Float {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun isPlaying(): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun getHeight(): Int {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun pause() {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun resume() {
-                        TODO("Not yet implemented")
-                    }
-                }
             }
         }
 

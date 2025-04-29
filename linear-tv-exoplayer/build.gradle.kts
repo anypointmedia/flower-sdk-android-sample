@@ -51,5 +51,5 @@ dependencies {
     implementation("com.google.android.exoplayer:exoplayer-hls:2.17.1")
     implementation("com.google.android.exoplayer:exoplayer-dash:2.17.1")
 
-    implementation("flower-sdk:sdk-android-ott:1.1.0")
+    implementation("flower-sdk:sdk-android-ott:1.2.1")
 }

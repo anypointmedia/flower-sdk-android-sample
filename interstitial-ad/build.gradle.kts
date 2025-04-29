@@ -46,5 +46,5 @@ android {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
-    implementation("flower-sdk:sdk-android-ott:1.1.0")
+    implementation("flower-sdk:sdk-android-ott:1.2.1")
 }

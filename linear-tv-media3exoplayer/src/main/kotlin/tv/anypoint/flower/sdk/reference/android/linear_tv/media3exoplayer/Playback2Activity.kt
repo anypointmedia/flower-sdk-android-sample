@@ -1,5 +1,6 @@
-package tv.anypoint.flower.sdk.reference.android.vod
+package tv.anypoint.flower.sdk.reference.android.linear_tv.media3exoplayer
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -10,14 +11,19 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import com.google.android.exoplayer2.*
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import tv.anypoint.flower.android.sdk.api.FlowerAdView
 import tv.anypoint.flower.sdk.core.api.*
 
-class PlaybackActivity : Activity(), Player.Listener {
+@SuppressLint("UnsafeOptInUsageError")
+class Playback2Activity : Activity(), Player.Listener {
 
     internal lateinit var player: ExoPlayer
     private lateinit var playerView: SurfaceView
@@ -26,45 +32,38 @@ class PlaybackActivity : Activity(), Player.Listener {
     private lateinit var nextVideo: Video
 
     internal lateinit var flowerAdView: FlowerAdView
-    private val flowerAdsManagerListener = FlowerAdsManagerListenerImpl(this)
-
-    internal var isContentEnd = false;
+    private val flowerAdsManagerListener = FlowerAdsManagerListenerImpl2(this)
 
     private lateinit var urlInputField: EditText
-    private lateinit var durationInputField: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_playback)
+        setContentView(R.layout.activity_playback2)
 
         video = intent?.getSerializableExtra(MainActivity.VIDEO) as Video?
         nextVideo = videoList.filter { it != video }.first()
 
         if (video == null) {
-            findViewById<LinearLayout>(R.id.customChannelForm).visibility = View.VISIBLE
+            findViewById<LinearLayout>(R.id.customChannelForm2).visibility = View.VISIBLE
 
-            urlInputField = findViewById<EditText>(R.id.urlInputField).apply {
+            urlInputField = findViewById<EditText>(R.id.urlInputField2).apply {
                 setText("https://xxx")
             }
 
-            durationInputField = findViewById<EditText>(R.id.durationInputField).apply {
-                setText("0")
-            }
-
-            findViewById<Button>(R.id.playButton).apply {
+            findViewById<Button>(R.id.playButton2).apply {
                 setOnClickListener {
                     (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
-                    playVod()
+                    playLinearTv()
                 }
             }
         }
 
         // TODO GUIDE: Create FlowerAdView instance
-        flowerAdView = findViewById(R.id.flowerAdView)
-        playerView = findViewById(R.id.playerView)
+        flowerAdView = findViewById(R.id.flowerAdView2)
+        playerView = findViewById(R.id.playerView2)
 
-        findViewById<Button>(R.id.switchButton).apply {
+        findViewById<Button>(R.id.switchButton2).apply {
             text = "Switch to ${nextVideo.title}"
             setOnClickListener {
                 // TODO GUIDE: Stop Flower SDK and release player resources on view destroy
@@ -73,7 +72,7 @@ class PlaybackActivity : Activity(), Player.Listener {
                 player.stop()
                 player.release()
 
-                val intent = Intent(this@PlaybackActivity, Playback2Activity::class.java)
+                val intent = Intent(this@Playback2Activity, PlaybackActivity::class.java)
                 intent.putExtra(MainActivity.VIDEO, nextVideo)
                 startActivity(intent)
                 finish()
@@ -81,7 +80,7 @@ class PlaybackActivity : Activity(), Player.Listener {
         }
 
         if (video != null) {
-            playVod()
+            playLinearTv()
         }
     }
 
@@ -95,9 +94,8 @@ class PlaybackActivity : Activity(), Player.Listener {
         player.release()
     }
 
-    private fun playVod() {
+    internal fun playLinearTv() {
         val url = video?.url ?: urlInputField.text.toString()
-        val durationMs = video?.durationMs ?: durationInputField.text.toString().toLong()
 
         flowerAdView.adsManager.addListener(flowerAdsManagerListener)
 
@@ -117,105 +115,96 @@ class PlaybackActivity : Activity(), Player.Listener {
             }
         }
 
-        // TODO GUIDE: Request VOD ad
-        // arg0: adTagUrl, url from flower system.
+        // TODO GUIDE: Change original linear TV stream url
+        // arg0: videoUrl, original linear TV stream url
+        // arg1: adTagUrl, url from flower system
         //       You must file a request to Anypoint Media to receive a adTagUrl.
-        // arg1: contentId, unique content id in your service
-        // arg2: durationMs, duration of VOD content in milliseconds
+        // arg2: channelId, unique channel id in your service
         // arg3: extraParams, values you can provide for targeting
         // arg4: mediaPlayerHook, interface that provides currently playing segment information for ad tracking
         // arg5: adTagHeaders, (Optional) values included in headers for ad request
-        flowerAdView.adsManager.requestVodAd(
+        // arg6: channelStreamHeaders, (Optional) values included in headers for channel stream request
+        val changedChannelUrl = flowerAdView.adsManager.changeChannelUrl(
+            url,
             "https://ad_request",
-            "-255",
-            durationMs,
+            "1",
             mapOf(),
             mediaPlayerHook,
             mapOf(),
+            mapOf(),
         )
 
-        player.setMediaItem(MediaItem.fromUri(url))
+        player.setMediaItem(MediaItem.fromUri(changedChannelUrl))
 
         player.setVideoSurfaceView(playerView)
-    }
 
-    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        when (playbackState) {
-            Player.STATE_ENDED -> {
-                isContentEnd = true
-                // TODO GUIDE: Notify the end of VOD content
-                flowerAdView.adsManager.notifyContentEnded()
-            }
-        }
-    }
+        player.playWhenReady = true
 
-    override fun onResume() {
-        super.onResume()
-
-        flowerAdView.adsManager.resume()
+        player.prepare()
     }
 
     override fun onPause() {
         super.onPause()
 
-        flowerAdView.adsManager.pause()
+        player.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        player.playWhenReady = true
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+        Log.e("FlowerSDK Example", "onPlayerError", error)
+
+        // TODO GUIDE: Stop Flower SDK and release linear TV player resources on player error
+        flowerAdView.adsManager.removeListener(flowerAdsManagerListener)
+        flowerAdView.adsManager.stop()
+        player.stop()
+        player.release()
+
+        // TODO GUIDE: Restart linear TV playback on player error
+        playLinearTv()
     }
 }
 
 // TODO GUIDE: Implement FlowerAdsManagerListener
-private class FlowerAdsManagerListenerImpl(private val playbackActivity: PlaybackActivity) : FlowerAdsManagerListener {
+private class FlowerAdsManagerListenerImpl2(private val playback2Activity: Playback2Activity) : FlowerAdsManagerListener {
     override fun onPrepare(adDurationMs: Int) {
         CoroutineScope(Main).launch {
-            if (playbackActivity.player.isPlaying) {
-                // OPTIONAL GUIDE: Implement custom actions for when the ad playback is ready
-
-                // TODO GUIDE: Play mid-roll ad
-                playbackActivity.flowerAdView.adsManager.play()
-            } else {
-                // TODO GUIDE: Play pre-roll ad
-                playbackActivity.flowerAdView.adsManager.play()
-            }
+            // OPTIONAL GUIDE: Need nothing to do for linear TV
         }
     }
 
     override fun onPlay() {
         CoroutineScope(Main).launch {
-            // TODO GUIDE: Pause VOD content when the ad playback starts
-            playbackActivity.player.playWhenReady = false
+            // OPTIONAL GUIDE: Implement custom actions for when the ad playback starts
         }
     }
 
     override fun onCompleted() {
         CoroutineScope(Main).launch {
-            // TODO GUIDE: Resume VOD content when the ad playback ends
-            if (playbackActivity.isContentEnd) {
-                playbackActivity.finish()
-                return@launch
-            }
-            if (!playbackActivity.player.isLoading) {
-                playbackActivity.player.prepare()
-            }
-            playbackActivity.player.playWhenReady = true
+            // OPTIONAL GUIDE: Implement custom actions for when the ad playback ends
         }
     }
 
     override fun onError(error: FlowerError?) {
         CoroutineScope(Main).launch {
-            // TODO GUIDE: Resume VOD content on ad error
-            if (playbackActivity.isContentEnd) {
-                playbackActivity.finish()
-                return@launch
-            }
-            if (!playbackActivity.player.isLoading) {
-                playbackActivity.player.prepare()
-            }
-            playbackActivity.player.playWhenReady = true
+            // TODO GUIDE: Stop Flower SDK and release linear TV player resources on ad error
+            playback2Activity.flowerAdView.adsManager.removeListener(this@FlowerAdsManagerListenerImpl2)
+            playback2Activity.flowerAdView.adsManager.stop()
+            playback2Activity.player.stop()
+            playback2Activity.player.release()
+
+            // TODO GUIDE: Restart linear TV playback on ad error
+            playback2Activity.playLinearTv()
         }
     }
 
     override fun onAdSkipped(reason: Int) {
         CoroutineScope(Main).launch {
-            // OPTIONAL GUIDE: Need nothing to do for VOD
+            // OPTIONAL GUIDE: Need nothing to do for linear TV
             Log.i("FlowerSDK Example", "Ad skipped - reason: $reason")
         }
     }
